@@ -1,3 +1,5 @@
+export teval, @teval, evalfast, @evalfast, tgetfield, @tgetfield, _teval, @_teval
+
 # overloading Meta.parse to support Tokens
 Meta.parse(t::T) where {T <: Union{Token, Array{Token}}} = Meta.parse(untokenize(t))
 
@@ -109,4 +111,43 @@ end
 macro tgetfield(t, check_isdefined::Bool = false)
     m = __module__
     return :(tgetfield($m, $t, $check_isdefined))
+end
+
+################################################################
+"""
+    @_teval(t, check_isdefined::Bool=false)
+    _teval(modul, t, check_isdefined::Bool=false)
+
+See [`teval`](@ref) for fast Token evaluation.
+
+Parses and evaluates a `Token` (or an expression or a string).
+
+If you set `check_isdefined` to `true`, and `t` is not defined in the scope it returns `UndefToken` instead of throwing an error.
+
+# Examples
+```jldoctest
+julia> t = collect(tokenize("Int64"))
+
+julia> @_teval(t)
+Int64
+```
+"""
+function _teval(modul::Module, t::T, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}, String}}
+    pt = Meta.parse(t)
+    if check_isdefined && !(tisdefined(modul,pt))
+        return UndefToken()
+    end
+    return Core.eval(modul, pt)
+end
+
+function _teval(modul::Module, t::T, check_isdefined::Bool = false) where {T <: Union{Symbol, Expr}}
+    if check_isdefined && !(tisdefined(modul,pt))
+        return UndefToken()
+    end
+    return Core.eval(modul, pt)
+end
+
+macro _teval(t, check_isdefined::Bool = false)
+    m = __module__
+    return :(teval($m, $t, $check_isdefined))
 end
