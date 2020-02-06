@@ -3,6 +3,9 @@ uuid = "921668b4-d217-4693-911b-1c54c2c06bce"
 authors = ["Amin Yahyaabadi"]
 version = "0.1.0"
 
+[deps]
+Tokenize = "0796e94c-ce3b-5d07-9a54-7f471281c624"
+
 [compat]
 julia = "1"
 
