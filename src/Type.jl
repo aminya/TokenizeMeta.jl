@@ -1,3 +1,4 @@
+export UndefToken, tisdefined, @tisdefined, ttypeof, tisa
 
 """
     UndefToken
@@ -56,3 +57,24 @@ function ttypeof(modul::Module, t::T, check_isdefined::Bool = false) where {T <:
     typeof(tevaled)
     return
  end
+
+"""
+    tisa(t, Tspecified)
+    tisa(t, Tspecified, check_isdefined::Bool = false)
+
+Compares the specified type with the type of an evaluated Token
+
+If you set `check_isdefined` to `true`, and `t` is not defined in the scope it returns `UndefToken` instead of throwing an error.
+
+# Examples
+```jldoctest
+julia> t = collect(tokenize("Int64"))
+
+julia> tisa(t, DataType)
+true
+```
+"""
+function tisa(t::T, Tspecified::Type, check_isdefined::Bool = false) where {T <: Union{Token, Array{Token}, String, Symbol, Expr}}
+    tevaled = @teval(t, check_isdefined)
+    isa(tevaled, Tspecified)
+end
