@@ -45,3 +45,30 @@ end
 # macro teval(mod, ex)
 #     :(Core.eval($(esc(mod)), $(Expr(:quote,ex))))
 # end
+
+################################################################
+
+"""
+    @evalfast(x)
+    evalfast(modul, x)
+
+Evaluates `x` fast. Uses `getfield` if `x` is a `Symbol`, and uses `eval` if it is an `Expr`
+# Examples
+```jldoctest
+julia> @evalfast(Int64)
+
+julia> @evalfast([5])
+
+```
+"""
+evalfast(modul::Module, x::Expr)= modul.eval(x)
+evalfast(modul::Module, x::Symbol)= getfield(modul,x)
+macro evalfast(x::Expr)
+    m = __module__
+    return :(Core.eval($m, $x))
+end
+macro evalfast(x::Symbol)
+    m = __module__
+    return :(getfield($m,$x))
+end
+
